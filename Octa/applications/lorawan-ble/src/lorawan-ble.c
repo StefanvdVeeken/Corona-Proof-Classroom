@@ -67,11 +67,14 @@ int main(void)
  {
    if (murata_init)
    {
-     uint8_t loraMessage[1];
+     uint8_t loraMessage[4];
      uint8_t i = 0;
     //uint16 counter to uint8 array (little endian)
     //counter (large) type byte
-    loraMessage[i++] = temperature;
+    loraMessage[i++] = 'T'; //HEX code : 54
+    loraMessage[i++] = (uint8_t)1;
+    loraMessage[i++] = (uint8_t)10;
+    loraMessage[i++] = (uint8_t)100;
     // float_union.fl = SHTData[0];
     // loraMessage[i++] = float_union.bytes.b1;
     // loraMessage[i++] = float_union.bytes.b2;

@@ -1,0 +1,16 @@
+// change the cwd and executable path to the current application
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}/applications/lorawan-ble",
+            "executable": "./build/lorawan-ble.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "name": "lorawan-ble",
+            "device": "STM32L496ZG",
+            "interface": "swd",
+        },
+    ]
+}
