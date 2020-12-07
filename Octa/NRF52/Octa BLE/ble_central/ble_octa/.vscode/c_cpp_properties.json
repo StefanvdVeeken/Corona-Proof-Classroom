@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "B:\\Program Files (x86)\\GNU Arm Embedded Toolchain\\9 2020-q2-update\\arm-none-eabi\\include",
+                "B:\\School\\Corona-Proof-Classroom\\Octa\\NRF52\\modules\\**",
+                "B:\\School\\Corona-Proof-Classroom\\Octa\\NRF52\\components**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "BOARD_PCA10056",
+                "CONFIG_GPIO_AS_PINRESET",
+                "INITIALIZE_USER_SECTIONS",
+                "FLOAT_ABI_HARD",
+                "NRF52",
+                "NRF52840_XXAA",
+                "NRF_SD_BLE_API_VERSION=6",
+                "S140",
+                "SOFTDEVICE_PRESENT",
+                "SWI_DISABLE0"
+            ],
+            "compilerPath": "",
+            "intelliSenseMode": "gcc-x86"
+        }
+    ],
+    "version": 4
+}

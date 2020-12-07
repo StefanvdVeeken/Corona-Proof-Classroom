@@ -161,6 +161,6 @@ void Dualstack_ApplicationCallback(void)
 }
 
 void UART_BLE_Callback(){
-  printINF("Temperature %d \r\n", temperature);
+  //printINF("Temperature %d \r\n", temperature);
   HAL_UART_Receive_IT(&BLE_UART, &temperature, 1);
 }
