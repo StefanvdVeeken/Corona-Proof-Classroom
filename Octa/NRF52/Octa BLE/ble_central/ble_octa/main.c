@@ -99,15 +99,16 @@
 #define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
 
 NRF_BLE_GATT_DEF(m_gatt);                                               /**< GATT module instance. */
-BLE_LBS_C_ARRAY_DEF(m_lbs_c, NRF_SDH_BLE_CENTRAL_LINK_COUNT);           /**< LED button client instances. */
-BLE_DB_DISCOVERY_ARRAY_DEF(m_db_disc, NRF_SDH_BLE_CENTRAL_LINK_COUNT);  /**< Database discovery module instances. */
+//BLE_LBS_C_ARRAY_DEF(m_lbs_c, NRF_SDH_BLE_CENTRAL_LINK_COUNT);           /**< LED button client instances. */
+//BLE_DB_DISCOVERY_ARRAY_DEF(m_db_disc, NRF_SDH_BLE_CENTRAL_LINK_COUNT);  /**< Database discovery module instances. */
 NRF_BLE_SCAN_DEF(m_scan);                                               /**< Scanning Module instance. */
 NRF_BLE_GQ_DEF(m_ble_gatt_queue,                                        /**< BLE GATT Queue instance. */
                NRF_SDH_BLE_CENTRAL_LINK_COUNT,
                NRF_BLE_GQ_QUEUE_SIZE);
 
-static char const m_target_periph_name[] = "Thingy";             /**< Name of the device to try to connect to. This name is searched for in the scanning report data. */
-nrf_ble_scan_short_name_t short_name = { .p_short_name = m_target_periph_name, .short_name_min_len = 8};
+static char const m_target_periph_name[] = "Thingy";  /**< Name of the device to parse advertisements from. This name is searched for in the scanning report data. */
+static char const m_target_periph_name2[] = "Window"; /**< Name of the device to parse advertisements from. This name is searched for in the scanning report data. */
+//nrf_ble_scan_short_name_t short_name = { .p_short_name = m_target_periph_name, .short_name_min_len = 8};
 
 uint32_t err_code;
 
@@ -159,143 +160,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 }
 
 
-/**@brief Function for handling the LED Button Service Client errors.
- *
- * @param[in]   nrf_error   Error code containing information about what went wrong.
- */
-static void lbs_error_handler(uint32_t nrf_error)
-{
-    APP_ERROR_HANDLER(nrf_error);
-}
-
-
-/**@brief Function for the LEDs initialization.
- *
- * @details Initializes all LEDs used by the application.
- */
-static void leds_init(void)
-{
-    bsp_board_init(BSP_INIT_LEDS);
-}
-
-
-static void scan_evt_handler(scan_evt_t const * p_scan_evt)
-{
-    ret_code_t err_code;
-
-    switch(p_scan_evt->scan_evt_id)
-    {
-        case NRF_BLE_SCAN_EVT_CONNECTING_ERROR:
-        {
-            err_code = p_scan_evt->params.connecting_err.err_code;
-            APP_ERROR_CHECK(err_code);
-        } break;
-
-        default:
-            break;
-    }
-}
-
-
-/**@brief Function for initializing the scanning and setting the filters.
- */
-static void scan_init(void)
-{
-    ret_code_t          err_code;
-    nrf_ble_scan_init_t init_scan;
-    // ble_gap_scan_params_t scan_params = { 
-    //     .extended = 0, 
-    //     .report_incomplete_evts = 0,
-    //     .active = 0
-    // };
-
-    memset(&init_scan, 0, sizeof(init_scan));
-
-    init_scan.connect_if_match = false; // We only want to read advertising messages
-    init_scan.conn_cfg_tag     = APP_BLE_CONN_CFG_TAG;
-    //init_scan.p_scan_param = scan_params;
-
-    err_code = nrf_ble_scan_init(&m_scan, &init_scan, scan_evt_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = nrf_ble_scan_filter_set(&m_scan, SCAN_NAME_FILTER, m_target_periph_name);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = nrf_ble_scan_filters_enable(&m_scan, NRF_BLE_SCAN_NAME_FILTER, false);
-    APP_ERROR_CHECK(err_code);
-}
-
-
-/**@brief Function for starting scanning. */
-static void scan_start(void)
-{
-    ret_code_t ret;
-
-    NRF_LOG_INFO("Start scanning for device name %s.", (uint32_t)m_target_periph_name);
-    ret = nrf_ble_scan_start(&m_scan);
-    APP_ERROR_CHECK(ret);
-    // Turn on the LED to signal scanning.
-    bsp_board_led_on(CENTRAL_SCANNING_LED);
-}
-
-
-/**@brief Handles events coming from the LED Button central module.
- *
- * @param[in] p_lbs_c     The instance of LBS_C that triggered the event.
- * @param[in] p_lbs_c_evt The LBS_C event.
- */
-static void lbs_c_evt_handler(ble_lbs_c_t * p_lbs_c, ble_lbs_c_evt_t * p_lbs_c_evt)
-{
-    switch (p_lbs_c_evt->evt_type)
-    {
-        case BLE_LBS_C_EVT_DISCOVERY_COMPLETE:
-        {
-            ret_code_t err_code;
-
-            NRF_LOG_INFO("LED Button Service discovered on conn_handle 0x%x",
-                         p_lbs_c_evt->conn_handle);
-
-            err_code = app_button_enable();
-            APP_ERROR_CHECK(err_code);
-
-            // LED Button Service discovered. Enable notification of Button.
-            err_code = ble_lbs_c_button_notif_enable(p_lbs_c);
-            APP_ERROR_CHECK(err_code);
-        } break; // BLE_LBS_C_EVT_DISCOVERY_COMPLETE
-
-        case BLE_LBS_C_EVT_BUTTON_NOTIFICATION:
-        {
-            NRF_LOG_INFO("Link 0x%x, Button state changed on peer to 0x%x",
-                         p_lbs_c_evt->conn_handle,
-                         p_lbs_c_evt->params.button.button_state);
-
-            if (p_lbs_c_evt->params.button.button_state)
-            {
-                bsp_board_led_on(LEDBUTTON_LED);
-            }
-            else
-            {
-                bsp_board_led_off(LEDBUTTON_LED);
-            }
-        } break; // BLE_LBS_C_EVT_BUTTON_NOTIFICATION
-
-        case BLE_LBS_C_EVT_TEMP_NOTIFICATION:
-        {
-            int8_t data = p_lbs_c_evt->params.button.degrees;
-            uint8_t data2 = p_lbs_c_evt->params.button.button_state;
-            NRF_LOG_INFO("Temperature main.c %d,%d", data, data2);
-            while (app_uart_put(data) != NRF_SUCCESS);
-            //nrf_delay_ms(1000);
-            while (app_uart_put(data2) != NRF_SUCCESS);
-            //nrf_delay_ms(1000);
-        }
-
-        default:
-            // No implementation needed.
-            break;
-    }
-}
-
 /**
 * @brief Parses advertisement data, providing length and location of the field in case
 * matching data is found.
@@ -308,14 +172,14 @@ static void lbs_c_evt_handler(ble_lbs_c_t * p_lbs_c, ble_lbs_c_evt_t * p_lbs_c_e
 * @retval NRF_SUCCESS if the data type is found in the report.
 * @retval NRF_ERROR_NOT_FOUND if the data type could not be found.
 */
-static uint32_t adv_report_parse(uint8_t type, ble_data_t * p_advdata, uint8_array_t * p_typedata)
+static uint32_t adv_report_parse(uint8_t type, uint8_array_t * p_advdata, uint8_array_t * p_typedata)
 {
     uint32_t index = 0;
     uint8_t * p_data;
 
     p_data = p_advdata->p_data;
 
-    while (index < p_advdata->len)
+    while (index < p_advdata->size)
     {
         uint8_t field_length = p_data[index];
         uint8_t field_type = p_data[index + 1];
@@ -331,11 +195,125 @@ static uint32_t adv_report_parse(uint8_t type, ble_data_t * p_advdata, uint8_arr
         return NRF_ERROR_NOT_FOUND;
 }
 
-static void on_adv_report(ble_gap_evt_adv_report_t *_report)
-{
-    uint8_array_t * shortname = NULL;
-    adv_report_parse(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, &_report->data, shortname);
+// https://stackoverflow.com/questions/4770985/how-to-check-if-a-string-starts-with-another-string-in-c
+bool startsWith(const char *str, const char *pre){
+    size_t lenstr = strlen(str),
+           lenpre = strlen(pre);
+    return lenstr < lenpre ? false : memcmp(pre, str, lenpre) == 0;
 }
+
+static void on_adv_report(ble_gap_evt_adv_report_t const *p_adv_report)
+{
+    // uint8_array_t * shortname = NULL;
+    // if(adv_report_parse(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, &_report->data, shortname) == NRF_SUCCESS){
+    //     NRF_LOG_INFO("Short name: %s", (uint32_t)shortname->p_data);
+    // }
+    uint32_t      err_code;
+    uint8_array_t adv_data;
+    uint8_array_t dev_name;
+    memset(&dev_name, 0, sizeof dev_name);
+
+    // Prepare advertisement report for parsing.
+    adv_data.p_data = p_adv_report->data.p_data;
+    adv_data.size   = p_adv_report->data.len;
+    //bool found_name = false;
+
+    // Try to get the SHORT_LOCAL_NAME the device is advertising on.
+    err_code = adv_report_parse(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, &adv_data, &dev_name);
+    if(err_code == NRF_SUCCESS /*&& dev_name.size == 10 && startsWith(dev_name.p_data, "Thing")*/ /*strncmp(dev_name.p_data, "Thingy", dev_name.size) == 0*/){
+      NRF_LOG_INFO("complete name: %s", (uint32_t) dev_name.p_data);
+    }
+    if(err_code != NRF_SUCCESS) {
+      err_code = adv_report_parse(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, &adv_data, &dev_name);
+      if(err_code == NRF_SUCCESS /*&& dev_name.size == 8 && startsWith(dev_name.p_data, "Thing")*//*strncmp(dev_name.p_data, "Thingy", dev_name.size) == 0*/){
+      NRF_LOG_INFO("short name: %s", (uint32_t) dev_name.p_data);
+      }
+    }
+  
+    uint8_array_t manuf_data;
+    memset(&manuf_data, 0, sizeof manuf_data);
+    err_code = adv_report_parse(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, &adv_data, &manuf_data);
+    
+}
+
+static void scan_evt_handler(scan_evt_t const * p_scan_evt)
+{
+    ret_code_t err_code;
+
+    switch(p_scan_evt->scan_evt_id)
+    {
+        case NRF_BLE_SCAN_EVT_CONNECTING_ERROR:
+        {
+            err_code = p_scan_evt->params.connecting_err.err_code;
+            APP_ERROR_CHECK(err_code);
+        } break;
+
+        case NRF_BLE_SCAN_EVT_FILTER_MATCH:
+        {
+            ble_gap_evt_adv_report_t report;
+            report = *p_scan_evt->params.filter_match.p_adv_report;
+            on_adv_report(&report);
+        } break;
+
+        default:
+            break;
+    }
+
+       //ble_gap_evt_adv_report_t report;
+       //report = *p_scan_evt->params.filter_match.p_adv_report;
+       //on_adv_report(&report);
+}
+
+
+/**@brief Function for initializing the scanning and setting the filters.
+ */
+static void scan_init(void)
+{
+    ret_code_t          err_code;
+    nrf_ble_scan_init_t init_scan;
+    const ble_gap_scan_params_t m_scan_param =
+    {
+        .active        = 0x01,
+        .interval      = NRF_BLE_SCAN_SCAN_INTERVAL,
+        //.window        = NRF_BLE_SCAN_SCAN_WINDOW,
+        .window        = BLE_GAP_SCAN_WINDOW_MAX,
+        .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
+        .timeout       = 0,
+        .scan_phys     = BLE_GAP_PHY_1MBPS,
+        .extended      = false,
+    };
+
+    memset(&init_scan, 0, sizeof(init_scan));
+
+    init_scan.connect_if_match = false; // We only want to read advertising messages
+    init_scan.conn_cfg_tag     = APP_BLE_CONN_CFG_TAG;
+    init_scan.p_scan_param = &m_scan_param;
+
+    err_code = nrf_ble_scan_init(&m_scan, &init_scan, scan_evt_handler);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_ble_scan_filter_set(&m_scan, SCAN_NAME_FILTER, m_target_periph_name);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_ble_scan_filter_set(&m_scan, SCAN_NAME_FILTER, m_target_periph_name2);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_ble_scan_filters_enable(&m_scan, NRF_BLE_SCAN_NAME_FILTER, false);
+    APP_ERROR_CHECK(err_code);
+}
+
+
+/**@brief Function for starting scanning. */
+static void scan_start(void)
+{
+    ret_code_t ret;
+
+    NRF_LOG_INFO("Test, start scanning for devices");
+    ret = nrf_ble_scan_start(&m_scan);
+    APP_ERROR_CHECK(ret);
+}
+
+
 
 
 /**@brief Function for handling BLE events.
@@ -353,69 +331,69 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     switch (p_ble_evt->header.evt_id)
     {
 
-        case BLE_GAP_EVT_ADV_REPORT:
-        {
-            NRF_LOG_INFO("Device found");
-            ble_gap_evt_adv_report_t report = p_gap_evt->params.adv_report;
-            on_adv_report(&report);
-        } break;
+        //case BLE_GAP_EVT_ADV_REPORT:
+        //{
+        //    NRF_LOG_INFO("Device found");
+        //    ble_gap_evt_adv_report_t report = p_gap_evt->params.adv_report;
+        //    on_adv_report(&report);
+        //} break;
         // Upon connection, check which peripheral is connected, initiate DB
         // discovery, update LEDs status, and resume scanning, if necessary.
-        case BLE_GAP_EVT_CONNECTED:
-        {
-            NRF_LOG_INFO("Connection 0x%x established, starting DB discovery.",
-                         p_gap_evt->conn_handle);
+        //case BLE_GAP_EVT_CONNECTED:
+        //{
+        //    NRF_LOG_INFO("Connection 0x%x established, starting DB discovery.",
+        //                 p_gap_evt->conn_handle);
 
-            APP_ERROR_CHECK_BOOL(p_gap_evt->conn_handle < NRF_SDH_BLE_CENTRAL_LINK_COUNT);
+        //    APP_ERROR_CHECK_BOOL(p_gap_evt->conn_handle < NRF_SDH_BLE_CENTRAL_LINK_COUNT);
 
-            err_code = ble_lbs_c_handles_assign(&m_lbs_c[p_gap_evt->conn_handle],
-                                                p_gap_evt->conn_handle,
-                                                NULL);
-            APP_ERROR_CHECK(err_code);
+        //    err_code = ble_lbs_c_handles_assign(&m_lbs_c[p_gap_evt->conn_handle],
+        //                                        p_gap_evt->conn_handle,
+        //                                        NULL);
+        //    APP_ERROR_CHECK(err_code);
 
-            err_code = ble_db_discovery_start(&m_db_disc[p_gap_evt->conn_handle],
-                                              p_gap_evt->conn_handle);
-            APP_ERROR_CHECK(err_code);
+        //    err_code = ble_db_discovery_start(&m_db_disc[p_gap_evt->conn_handle],
+        //                                      p_gap_evt->conn_handle);
+        //    APP_ERROR_CHECK(err_code);
 
-            // Update LEDs status and check whether it is needed to look for more
-            // peripherals to connect to.
-            bsp_board_led_on(CENTRAL_CONNECTED_LED);
-            if (ble_conn_state_central_conn_count() == NRF_SDH_BLE_CENTRAL_LINK_COUNT)
-            {
-                bsp_board_led_off(CENTRAL_SCANNING_LED);
-            }
-            else
-            {
-                // Resume scanning.
-                bsp_board_led_on(CENTRAL_SCANNING_LED);
-                scan_start();
-            }
-        } break; // BLE_GAP_EVT_CONNECTED
+        //    // Update LEDs status and check whether it is needed to look for more
+        //    // peripherals to connect to.
+        //    bsp_board_led_on(CENTRAL_CONNECTED_LED);
+        //    if (ble_conn_state_central_conn_count() == NRF_SDH_BLE_CENTRAL_LINK_COUNT)
+        //    {
+        //        bsp_board_led_off(CENTRAL_SCANNING_LED);
+        //    }
+        //    else
+        //    {
+        //        // Resume scanning.
+        //        bsp_board_led_on(CENTRAL_SCANNING_LED);
+        //        scan_start();
+        //    }
+        //} break; // BLE_GAP_EVT_CONNECTED
 
-        // Upon disconnection, reset the connection handle of the peer that disconnected, update
-        // the LEDs status and start scanning again.
-        case BLE_GAP_EVT_DISCONNECTED:
-        {
-            NRF_LOG_INFO("LBS central link 0x%x disconnected (reason: 0x%x)",
-                         p_gap_evt->conn_handle,
-                         p_gap_evt->params.disconnected.reason);
+        //// Upon disconnection, reset the connection handle of the peer that disconnected, update
+        //// the LEDs status and start scanning again.
+        //case BLE_GAP_EVT_DISCONNECTED:
+        //{
+        //    NRF_LOG_INFO("LBS central link 0x%x disconnected (reason: 0x%x)",
+        //                 p_gap_evt->conn_handle,
+        //                 p_gap_evt->params.disconnected.reason);
 
-            if (ble_conn_state_central_conn_count() == 0)
-            {
-                err_code = app_button_disable();
-                APP_ERROR_CHECK(err_code);
+        //    if (ble_conn_state_central_conn_count() == 0)
+        //    {
+        //        err_code = app_button_disable();
+        //        APP_ERROR_CHECK(err_code);
 
-                // Turn off the LED that indicates the connection.
-                bsp_board_led_off(CENTRAL_CONNECTED_LED);
-            }
+        //        // Turn off the LED that indicates the connection.
+        //        bsp_board_led_off(CENTRAL_CONNECTED_LED);
+        //    }
 
-            // Start scanning.
-            scan_start();
+        //    // Start scanning.
+        //    scan_start();
 
-            // Turn on the LED for indicating scanning.
-            bsp_board_led_on(CENTRAL_SCANNING_LED);
+        //    // Turn on the LED for indicating scanning.
+        //    bsp_board_led_on(CENTRAL_SCANNING_LED);
 
-        } break;
+        //} break;
 
         case BLE_GAP_EVT_TIMEOUT:
         {
@@ -472,24 +450,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 }
 
 
-/**@brief LED Button collector initialization. */
-static void lbs_c_init(void)
-{
-    ret_code_t       err_code;
-    ble_lbs_c_init_t lbs_c_init_obj;
-
-    lbs_c_init_obj.evt_handler   = lbs_c_evt_handler;
-    lbs_c_init_obj.p_gatt_queue  = &m_ble_gatt_queue;
-    lbs_c_init_obj.error_handler = lbs_error_handler;
-
-    for (uint32_t i = 0; i < NRF_SDH_BLE_CENTRAL_LINK_COUNT; i++)
-    {
-        err_code = ble_lbs_c_init(&m_lbs_c[i], &lbs_c_init_obj);
-        APP_ERROR_CHECK(err_code);
-    }
-}
-
-
 /**@brief Function for initializing the BLE stack.
  *
  * @details Initializes the SoftDevice and the BLE event interrupts.
@@ -514,112 +474,6 @@ static void ble_stack_init(void)
     // Register a handler for BLE events.
     NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
 }
-
-
-/**@brief Function for writing to the LED characteristic of all connected clients.
- *
- * @details Based on whether the button is pressed or released, this function writes a high or low
- *          LED status to the server.
- *
- * @param[in] button_action The button action (press or release).
- *            Determines whether the LEDs of the servers are ON or OFF.
- *
- * @return If successful, NRF_SUCCESS is returned. Otherwise, returns the error code from @ref ble_lbs_led_status_send.
- */
-static ret_code_t led_status_send_to_all(uint8_t button_action)
-{
-    ret_code_t err_code;
-
-    for (uint32_t i = 0; i< NRF_SDH_BLE_CENTRAL_LINK_COUNT; i++)
-    {
-        err_code = ble_lbs_led_status_send(&m_lbs_c[i], button_action);
-        if (err_code != NRF_SUCCESS &&
-            err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
-            err_code != NRF_ERROR_INVALID_STATE)
-        {
-            return err_code;
-        }
-    }
-        return NRF_SUCCESS;
-}
-
-
-/**@brief Function for handling events from the button handler module.
- *
- * @param[in] pin_no        The pin that the event applies to.
- * @param[in] button_action The button action (press or release).
- */
-static void button_event_handler(uint8_t pin_no, uint8_t button_action)
-{
-    ret_code_t err_code;
-
-    switch (pin_no)
-    {
-        case LEDBUTTON_BUTTON:
-            err_code = led_status_send_to_all(button_action);
-            if (err_code == NRF_SUCCESS)
-            {
-                NRF_LOG_INFO("LBS write LED state %d", button_action);
-            }
-            break;
-
-        default:
-            APP_ERROR_HANDLER(pin_no);
-            break;
-    }
-}
-
-
-/**@brief Function for initializing the button handler module.
- */
-static void buttons_init(void)
-{
-    ret_code_t err_code;
-
-   // The array must be static because a pointer to it is saved in the button handler module.
-    static app_button_cfg_t buttons[] =
-    {
-        {LEDBUTTON_BUTTON, false, BUTTON_PULL, button_event_handler}
-    };
-
-    err_code = app_button_init(buttons, ARRAY_SIZE(buttons), BUTTON_DETECTION_DELAY);
-    APP_ERROR_CHECK(err_code);
-}
-
-
-/**@brief Function for handling database discovery events.
- *
- * @details This function is a callback function to handle events from the database discovery module.
- *          Depending on the UUIDs that are discovered, this function forwards the events
- *          to their respective services.
- *
- * @param[in] p_event  Pointer to the database discovery event.
- */
-static void db_disc_handler(ble_db_discovery_evt_t * p_evt)
-{
-    NRF_LOG_DEBUG("call to ble_lbs_on_db_disc_evt for instance %d and link 0x%x!",
-                  p_evt->conn_handle,
-                  p_evt->conn_handle);
-
-    ble_lbs_on_db_disc_evt(&m_lbs_c[p_evt->conn_handle], p_evt);
-}
-
-
-/** @brief Database discovery initialization.
- */
-static void db_discovery_init(void)
-{
-    ble_db_discovery_init_t db_init;
-
-    memset(&db_init, 0, sizeof(ble_db_discovery_init_t));
-
-    db_init.evt_handler  = db_disc_handler;
-    db_init.p_gatt_queue = &m_ble_gatt_queue;
-
-    ret_code_t err_code = ble_db_discovery_init(&db_init);
-    APP_ERROR_CHECK(err_code);
-}
-
 
 /**@brief Function for initializing power management.
  */
@@ -678,13 +532,9 @@ int main(void)
     // Initialize.
     log_init();
     timer_init();
-    leds_init();
-    buttons_init();
     power_management_init();
     ble_stack_init();
     gatt_init();
-    db_discovery_init();
-    lbs_c_init();
     ble_conn_state_init();
     scan_init();
 
@@ -698,7 +548,7 @@ int main(void)
     APP_ERROR_CHECK(err_code);
 
     // Start execution.
-    NRF_LOG_INFO("BLE_LoRaWAN example started.");
+    NRF_LOG_INFO("BLE on octa activated.");
     scan_start();
 
     for (;;)

@@ -271,12 +271,12 @@
 
 // <o> NRF_BLE_SCAN_NAME_CNT - Number of name filters. 
 #ifndef NRF_BLE_SCAN_NAME_CNT
-#define NRF_BLE_SCAN_NAME_CNT 1
+#define NRF_BLE_SCAN_NAME_CNT 2
 #endif
 
 // <o> NRF_BLE_SCAN_SHORT_NAME_CNT - Number of short name filters. 
 #ifndef NRF_BLE_SCAN_SHORT_NAME_CNT
-#define NRF_BLE_SCAN_SHORT_NAME_CNT 0
+#define NRF_BLE_SCAN_SHORT_NAME_CNT 2
 #endif
 
 // <o> NRF_BLE_SCAN_ADDRESS_CNT - Number of address filters. 
@@ -7691,7 +7691,7 @@
  
 
 #ifndef NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED
-#define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED 1
+#define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED 0
 #endif
 
 // <q> NRF_FPRINTF_DOUBLE_ENABLED  - Enable IEEE-754 double precision formatting.

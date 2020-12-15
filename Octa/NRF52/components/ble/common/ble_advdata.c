@@ -694,8 +694,10 @@ bool ble_advdata_name_find(uint8_t const * p_encoded_data,
 
     if (   (data_offset != 0)
         && (parsed_name_len != 0)
-        && (strlen(p_target_name) == parsed_name_len)
-        && (memcmp(p_target_name, p_parsed_name, parsed_name_len) == 0))
+        //&& (strlen(p_target_name) == parsed_name_len)
+        &&(parsed_name_len >= strlen(p_target_name))
+        //&& (memcmp(p_target_name, p_parsed_name, parsed_name_len) == 0))
+        && (memcmp(p_target_name, p_parsed_name, strlen(p_target_name)) == 0))
     {
         return true;
     }
