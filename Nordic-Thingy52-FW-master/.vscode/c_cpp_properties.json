@@ -1,0 +1,54 @@
+{
+    "configurations": [
+        {
+            "name": "nRF52 Thingy",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${vcpkgRoot}/x86-windows/include",
+                "${env:GNU_GCC}/arm-none-eabi/include",
+                "${env:ThingySDK}/include/**",
+                "${env:ThingySDK}/sdk_components/**",
+                "${env:ThingySDK}/source/**",
+                "${env:ThingySDK}/libs/**",
+                "${env:ThingySDK}/external/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "NRF52",
+                "BLE_STACK_SUPPORT_REQD",
+                "NRF52_PAN_12",
+                "NRF52_PAN_15",
+                "NRF52_PAN_20",
+                "NRF52_PAN_30",
+                "NRF52_PAN_31",
+                "NRF52_PAN_36",
+                "NRF52_PAN_51",
+                "NRF52_PAN_53",
+                "NRF52_PAN_54",
+                "NRF52_PAN_55",
+                "NRF52_PAN_58",
+                "NRF52_PAN_62",
+                "NRF52_PAN_63",
+                "NRF52_PAN_64",
+                "S132",
+                "NRF_LOG_USES_RTT=1",
+                "SOFTDEVICE_PRESENT",
+                "SWI_DISABLE0",
+                "DEBUG",
+                "BSP_DEFINES_ONLY",
+                "ARM_MATH_CM4",
+                "MPU9250",
+                "EMPL",
+                "USE_DMP",
+                "EMPL_TARGET_NRF52"
+            ],
+            "compilerPath": "${env:GNU_GCC}/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "${default}"
+        }
+    ],
+    "version": 4
+}
