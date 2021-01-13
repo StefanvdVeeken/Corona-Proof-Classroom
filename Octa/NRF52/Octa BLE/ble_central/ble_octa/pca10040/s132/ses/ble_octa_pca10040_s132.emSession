@@ -58,11 +58,14 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="527" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="189" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="30" y="209" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="180" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/util/app_error_weak.c" selected="0" top="67" codecName=""/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="280" useTextEdit="1" openedFrom="B:/School/Corona-Proof-Classroom/Octa/NRF52/Octa BLE/ble_central/ble_octa/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/ble_gap.h" selected="0" top="248" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1012" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" selected="0" top="980" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="223" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="196" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="281" useTextEdit="1" openedFrom="B:/School/Corona-Proof-Classroom/Octa/NRF52/Octa BLE/ble_central/ble_octa/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/ble_gap.h" selected="0" top="259" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="992" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" selected="0" top="957" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="757" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/common/ble_advdata.c" selected="0" top="662" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="324" useTextEdit="1" openedFrom="B:/School/Corona-Proof-Classroom/Octa/NRF52/Octa BLE/ble_central/ble_octa/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/util/app_util.h" selected="0" top="287" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="264" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="245" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="202" useTextEdit="1" openedFrom="B:/School/Corona-Proof-Classroom/Octa/NRF52/components/softdevice/s132/headers/ble_gap.h" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/ble_types.h" selected="0" top="173" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="220" useTextEdit="1" openedFrom="B:/School/Corona-Proof-Classroom/Octa/NRF52/Octa BLE/ble_central/ble_octa/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/uart/app_uart_fifo.c" selected="0" top="195" codecName="Default"/>
  </Files>
- <ARMCrossStudioWindow activeProject="ble_octa_pca10040_s132" fileDialogDefaultFilter="*.c;*.cpp;*.cxx;*.cc;*.h;*.hpp;*.hxx" autoConnectTarget="J-Link" buildConfiguration="Release" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="B:/School/Corona-Proof-Classroom/Octa/NRF52/components/libraries/fifo" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <ARMCrossStudioWindow activeProject="ble_octa_pca10040_s132" fileDialogDefaultFilter="*.c;*.cpp;*.cxx;*.cc;*.h;*.hpp;*.hxx" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="B:/School/Corona-Proof-Classroom/Octa/NRF52/components/libraries/fifo" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

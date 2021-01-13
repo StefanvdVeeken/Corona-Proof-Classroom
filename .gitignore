@@ -64,3 +64,8 @@ Backup of *.doc*
 
 # Visio autosave temporary files
 *.~vsd*
+##       Segger          ##
+build/
+*.emSession
+*.jlink
+Output/
