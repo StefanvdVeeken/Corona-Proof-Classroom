@@ -90,7 +90,7 @@ int main(void)
     loraMessage[i++] = 'T'; // Type byte
     loraMessage[i++] = 01; // ID byte
     loraMessage[i++] = 02; // Thingy: Neighbour ID, window: status
-    loraMessage[i++] = 125; // Thingy: RSSI, window: empty byte
+    loraMessage[i++] = -58; // Thingy: RSSI, window: empty byte
 
     // loraMessage[i++] = uartSensorData[0];
     // loraMessage[i++] = uartSensorData[1];
@@ -174,9 +174,6 @@ void process_rx_uart()
   struct UartMessage newMessage;
   while(1)
   {
-    //startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
-    // if (startProcessing == 1)
-    // {
       if(data_ready == 1)
       {
         osMutexWait(uart_rx_process_mutex_id, osWaitForever);
@@ -199,11 +196,7 @@ void process_rx_uart()
           messagesIndex++;
         }
       }
-      data_ready = 0;
-    //}
-    // elseg
-    // {
-    // }
+    data_ready = 0;
     osMutexRelease(uart_rx_process_mutex_id);
     osDelay(1);
   }
@@ -218,7 +211,6 @@ void Dualstack_ApplicationCallback(void)
 void UART_BLE_Callback()
 {
   data_ready = 1;
-  //RTOS_Send_Notification(uart_rx_processing_handle);
   printINF("Data %d %d %d %d\r\n", uartSensorData[0], uartSensorData[1] , uartSensorData[2], uartSensorData[3]);
   HAL_UART_Receive_IT(&BLE_UART, &uartSensorData, 8);
   LoRaWAN_send();

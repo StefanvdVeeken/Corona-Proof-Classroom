@@ -58,7 +58,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="223" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="196" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="208" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="196" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="281" useTextEdit="1" openedFrom="B:/School/Corona-Proof-Classroom/Octa/NRF52/Octa BLE/ble_central/ble_octa/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/ble_gap.h" selected="0" top="259" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="992" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" selected="0" top="957" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="757" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/common/ble_advdata.c" selected="0" top="662" codecName="Default"/>

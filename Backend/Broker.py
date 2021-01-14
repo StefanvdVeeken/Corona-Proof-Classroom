@@ -70,14 +70,15 @@ def on_subscribe(client,userdata, mid, granted_qos):
 	print ("Subscribed: "+ str(mid)+ " with QoS: " + str(granted_qos))
 
 def parseData(sensorData):
-    seperateMessages = [sensorData[i:i+8] for i in range(sensorTypePosition, len(sensorData), 8)] # Seperate all the message 
-
-    for message in seperateMessages:
+    seperateMessages = [sensorData[i:i+8] for i in range(sensorTypePosition, len(sensorData), 8)] # Seperate all the messages
+    for message in seperateMessages: # Now loop over all message and retrieve data
         dataType = message[sensorTypePosition:dataPosition] # Retrieve type of data from payload
         dataPieces = [message[i:i+2] for i in range(dataPosition, 8, 2)] # Get all data points. payload should only contain 4 bytes. In hex so 8 positions
         if dataType == format(ord('T'), 'x'): # Format hex value of T with 0x prefix
             # print('Thingy ID {} neighbour ID: {} RSSI: {}'.format(int(dataPieces[0], 16), int(dataPieces[1], 16), int(dataPieces[2], 16)))
-            newChair = Chair(int(dataPieces[0], 16), int(dataPieces[1], 16), int(dataPieces[2], 16))
+            uRSSI = int(dataPieces[2], 16)
+            realRSSI = (-1)*(255+1-uRSSI) # Convert 2's complement to negative number. 255 for 8 bit number
+            newChair = Chair(int(dataPieces[0], 16), int(dataPieces[1], 16), realRSSI)
             if chairs.count_documents ({'_id': newChair._id}, limit=1):
                 # Update existing document
                 chairs.update_one({"_id": newChair._id},
