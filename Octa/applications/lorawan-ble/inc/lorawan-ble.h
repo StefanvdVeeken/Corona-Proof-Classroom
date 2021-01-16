@@ -15,7 +15,7 @@ osThreadId defaultTaskHandle;
 osThreadId murata_rx_processing_handle;
 osThreadId uart_rx_processing_handle;
 osTimerId iwdgTimId;
-// osTimerId loraWANTimId;
+osTimerId loraWANTimId;
 osTimerId moduleCheckTimId;
 osMutexId txMutexId;
 osMutexId murata_rx_process_mutex_id;

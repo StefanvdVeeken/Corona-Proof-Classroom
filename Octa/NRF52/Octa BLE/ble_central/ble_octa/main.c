@@ -213,7 +213,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const *p_adv_report)
     uint32_t      err_code;
     uint8_array_t adv_data;
     uint8_array_t dev_name;
-    memset(&dev_name, 0, sizeof dev_name);
+    memset(&dev_name, 0, sizeof(dev_name));
 
     // Prepare advertisement report for parsing.
     adv_data.p_data = p_adv_report->data.p_data;
@@ -221,22 +221,27 @@ static void on_adv_report(ble_gap_evt_adv_report_t const *p_adv_report)
     //bool found_name = false;
     //if(err_code == NRF_SUCCESS && dev_name.size == 10 && startsWith(dev_name.p_data, "Thing") strncmp(dev_name.p_data, "Thingy", dev_name.size) == 0)
     // Try to get the SHORT_LOCAL_NAME the device is advertising on.
-    err_code = adv_report_parse(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, &adv_data, &dev_name);
-    if(err_code == NRF_SUCCESS){
-      //NRF_LOG_INFO("complete name: %s", dev_name.p_data);
-      sendOverUart(&dev_name);
-    }
-    if(err_code != NRF_SUCCESS) {
-      err_code = adv_report_parse(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, &adv_data, &dev_name);
-      if(err_code == NRF_SUCCESS){
-      //NRF_LOG_INFO("short name: %s", dev_name.p_data);
-        while(app_uart_put(*(dev_name.p_data)) != NRF_SUCCESS); // Put the data on UART
-      }
-    }
+
+    //err_code = adv_report_parse(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, &adv_data, &dev_name);
+    //if(err_code == NRF_SUCCESS){
+    //  //NRF_LOG_INFO("complete name: %s", dev_name.p_data);
+    //  sendOverUart(&dev_name);
+    //}
+    //if(err_code != NRF_SUCCESS) {
+    //  err_code = adv_report_parse(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, &adv_data, &dev_name);
+    //  if(err_code == NRF_SUCCESS){
+    //  //NRF_LOG_INFO("short name: %s", dev_name.p_data);
+    //    while(app_uart_put(*(dev_name.p_data)) != NRF_SUCCESS); // Put the data on UART
+    //  }
+    //}
   
     uint8_array_t manuf_data;
-    memset(&manuf_data, 0, sizeof manuf_data);
+    memset(&manuf_data, 0, sizeof (manuf_data));
     err_code = adv_report_parse(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, &adv_data, &manuf_data);
+    if(err_code == NRF_SUCCESS){
+      NRF_LOG_INFO("manuf data: %d", manuf_data.p_data);
+      sendOverUart(&manuf_data);
+    }
     
 }
 
