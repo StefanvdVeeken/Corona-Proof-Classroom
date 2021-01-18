@@ -12,8 +12,8 @@ session_config_t session_config_lora =
             .appKey = LORAWAN_APP_KEY,
             .request_ack = false,
             .application_port = 1,
-            .adr_enabled = true,
-            .data_rate = 0}};
+            .adr_enabled = false,
+            .data_rate = 5}};
 
 // change qos_resp_mode to SESSION_RESP_MODE_ALL if you want all gateways to receive your message
 // SESSION_RESP_MODE_PREFERRED to only communicate with one (the preferred) gateway
