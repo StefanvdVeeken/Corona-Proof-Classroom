@@ -90,7 +90,7 @@ static bool                       m_flash_disconnect = false;
 static bool                       m_major_minor_fw_ver_changed = false;
 static char                       m_mac_addr[SUPPORT_FUNC_MAC_ADDR_STR_LEN];            /**< The device MAC address. */
 static uint8_t                    m_random_vector_device_id[RANDOM_VECTOR_DEVICE_ID_SIZE];        /**< Device random ID. Used for NFC BLE pairng on iOS. */
-
+static m_ble_service_handle_t  m_ble_service_handles[THINGY_SERVICES_MAX];
 #define NRF_BLE_MAX_MTU_SIZE            BLE_GATT_ATT_MTU_DEFAULT*12         /**< MTU size used in the softdevice enabling and to reply to a BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST event. */
 
 #ifdef BLE_DFU_APP_SUPPORT
@@ -119,6 +119,11 @@ static uint8_t                    m_random_vector_device_id[RANDOM_VECTOR_DEVICE
 
 #endif // BLE_DFU_APP_SUPPORT
 #define CONN_CFG_TAG_THINGY 1
+
+static char const testName[] = "Thingy";
+volatile uint8_t Self_ID_ARNE = 12;     // ID of this thingy
+volatile int8_t Self_Rssi_ARNE = -128;      //this variable is added to keep track of the Rssi
+volatile uint8_t neighb_ID_ARNE = 0; //
 
 
 /**@brief Check if flash is currently being accessed.
@@ -345,6 +350,77 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 }
 
 
+
+/**
+* @brief Parses advertisement data, providing length and location of the field in case
+* matching data is found.
+*
+* @param[in] type Type of data to be looked for in advertisement data.
+* @param[in] p_advdata Advertisement report length and pointer to report.
+* @param[out] p_typedata If data type requested is found in the data report, type data length and
+* pointer to data will be populated here.
+*
+* @retval NRF_SUCCESS if the data type is found in the report.
+* @retval NRF_ERROR_NOT_FOUND if the data type could not be found.
+*/
+static uint32_t adv_report_parse(uint8_t type, uint8_array_t * p_advdata, uint8_array_t * p_typedata)
+{
+    uint32_t index = 0;
+    uint8_t * p_data;
+
+    p_data = p_advdata->p_data;
+    while (index < p_advdata->size)
+    {
+        uint8_t field_length = p_data[index];
+        uint8_t field_type = p_data[index + 1];
+
+    if (field_type == type)
+    {
+        p_typedata->p_data = &p_data[index + 2];
+        p_typedata->size = field_length - 1;
+        return NRF_SUCCESS;
+    }
+    index += field_length + 1;
+    }
+        return NRF_ERROR_NOT_FOUND;
+}
+
+// https://stackoverflow.com/questions/4770985/how-to-check-if-a-string-starts-with-another-string-in-c
+bool startsWith(const char *str, const char *pre){
+    size_t lenstr = strlen(str),
+           lenpre = strlen(pre);
+    return lenstr < lenpre ? false : memcmp(pre, str, lenpre) == 0;
+}
+
+static void on_adv_report(ble_gap_evt_adv_report_t const *p_adv_report)
+{ 
+    uint32_t      err_code;
+    uint8_array_t adv_data;
+    uint8_array_t dev_name;
+    memset(&dev_name, 0, sizeof dev_name);
+
+    // Prepare advertisement report for parsing.
+    adv_data.p_data = p_adv_report->data;
+    adv_data.size   = p_adv_report->dlen;
+
+    err_code = adv_report_parse(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, &adv_data, &dev_name);
+    if(err_code == NRF_SUCCESS && startsWith(dev_name.p_data, testName)== 1)
+    {   
+      if(Self_Rssi_ARNE < p_adv_report->rssi)
+     {
+         Self_Rssi_ARNE = p_adv_report->rssi;
+         uint8_array_t manuf_data;
+         memset(&manuf_data, 0, sizeof (manuf_data));
+         err_code = adv_report_parse(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, &adv_data, &manuf_data);
+         if(err_code == NRF_SUCCESS){
+          //NRF_LOG_INFO("\nError CODE: %d\r\n", err_code);
+          NRF_LOG_INFO("\nCOMPLETE_LOCAL_NAME: %s\r\n RSSI = %d\r\nmanuf data: %d\r\n", dev_name.p_data,Self_Rssi_ARNE,manuf_data.p_data[3]);
+          neighb_ID_ARNE = manuf_data.p_data[3];
+         }
+     }        
+    }
+}
+
 /**@brief Function for the application's SoftDevice event handler.
  *
  * @param[in] p_ble_evt SoftDevice event.
@@ -426,7 +502,68 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE:
             NRF_LOG_INFO("on_ble_evt: BLE_GAP_EVT_DATA_LENGTH_UPDATE\r\n");
         break;
-        
+
+        case thingy_ble_evt_connected:
+            NRF_LOG_INFO("EVT CONNECTED!!!!!!!!!!");
+        break;
+        case BLE_GAP_EVT_ADV_REPORT:
+            NRF_LOG_INFO("\r\nADVERTISSSSSEEEMEEENNNTT ONTVANNNNGGGEEEENNNN");
+            on_adv_report(&p_ble_evt->evt.gap_evt.params.adv_report);            
+            //on_adv_report(&report);
+            //RssiMain = p_evt->evt_type.rssi;
+            //NRF_LOG_INFO("Received advertisement packet with:\nrssi: %d\nneigbour ID: %d\r\n", adv_report.rssi );       
+         break;
+
+         case BLE_GAP_EVT_TIMEOUT:
+        {
+            // We have not specified a timeout for scanning, so only connection attemps can timeout.
+            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_SCAN)
+            {
+                ble_advdata_t advdata;
+                ble_uuid_t    adv_uuids = {BLE_UUID_TCS_SERVICE, m_tcs.uuid_type};
+
+                // Build advertising data struct to pass into @ref ble_advertising_init.
+                memset(&advdata, 0, sizeof(advdata));
+
+                advdata.name_type                       = BLE_ADVDATA_FULL_NAME;
+                advdata.include_appearance              = false;
+                advdata.flags                           = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE; //LE General Discoverable Mode, BR/EDR not supported.
+
+
+                ble_adv_modes_config_t options = {0};
+                options.ble_adv_fast_enabled  = true;
+                options.ble_adv_fast_interval = m_ble_config->adv_params.interval;
+                options.ble_adv_fast_timeout  = m_ble_config->adv_params.timeout;
+
+                // Build scan response data struct to pass into @ref ble_advertising_init.
+                ble_advdata_t scan_response_data;
+                memset(&scan_response_data, 0, sizeof(scan_response_data));
+
+                // Manufacturer specific data in advertising packet.
+                ble_advdata_manuf_data_t adv_manuf_data; //variable to hold manuf specific data
+
+                adv_manuf_data.company_identifier   =  0xFFFF;
+                uint8_t data[4]                     = {'T',Self_ID_ARNE,neighb_ID_ARNE,Self_Rssi_ARNE};  //Our data to advertise => type, device ID,
+                                                                            // neighbour ID, RSSI
+                adv_manuf_data.data.p_data          = data;                                     //ndom_vector_device_id_reversed;
+                adv_manuf_data.data.size            = sizeof(data);                                      //RANDOM_VECTOR_DEVICE_ID_SIZE;
+
+                neighb_ID_ARNE = 0;   //NEIGHBOUR_ID and Rssi should be reset because next time we scan, there should be checked neighb_ID
+                Self_Rssi_ARNE = -128;        //if the node is still there...
+
+                advdata.p_manuf_specific_data       = &adv_manuf_data;
+
+                // Set both advertisement data and scan response data.
+                err_code = ble_advertising_init(&advdata, NULL, &options, on_adv_evt, NULL);
+                RETURN_IF_ERROR(err_code);
+
+                ble_advertising_conn_cfg_tag_set(CONN_CFG_TAG_THINGY);
+                //advertising_init();
+                ble_advertising_start(BLE_ADV_MODE_FAST);
+                NRF_LOG_INFO("SCANNERRRRRRR TIMEEEEEDDDD OUUUUUUUUUUTTTTTTT\r\n");
+
+            }
+        } break; // BLE_GAP_EVT_TIMEOUT
         default:
             // No implementation needed.
             break;
@@ -446,6 +583,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     ble_conn_state_on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
+    //on_adv_report(p_ble_evt);
 
     for (uint32_t i = 0; i < m_service_num; i++)
     {
@@ -607,9 +745,8 @@ static uint32_t advertising_init(void)
     
     advdata.name_type                       = BLE_ADVDATA_FULL_NAME;
     advdata.include_appearance              = false;
-    advdata.flags                           = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-    advdata.uuids_more_available.uuid_cnt   = 1;
-    advdata.uuids_more_available.p_uuids    = &adv_uuids;
+    advdata.flags                           = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE; //LE General Discoverable Mode, BR/EDR not supported.
+    
 
     ble_adv_modes_config_t options = {0};
     options.ble_adv_fast_enabled  = true;
@@ -621,24 +758,21 @@ static uint32_t advertising_init(void)
     memset(&scan_response_data, 0, sizeof(scan_response_data));
 
     // Manufacturer specific data in advertising packet.
-    ble_advdata_manuf_data_t adv_manuf_data;
+    ble_advdata_manuf_data_t adv_manuf_data; //variable to hold manuf specific data
     
-    uint8_t random_vector_device_id_reversed[RANDOM_VECTOR_DEVICE_ID_SIZE];
-    
-    for (uint8_t i = 0; i < RANDOM_VECTOR_DEVICE_ID_SIZE; i++)
-    {
-        random_vector_device_id_reversed[i] = m_random_vector_device_id[RANDOM_VECTOR_DEVICE_ID_SIZE - i - 1];
-    }
-    
-    adv_manuf_data.company_identifier   = NORDIC_COMPANY_ID;
-    adv_manuf_data.data.p_data          = random_vector_device_id_reversed;
-    adv_manuf_data.data.size            = RANDOM_VECTOR_DEVICE_ID_SIZE;
+    adv_manuf_data.company_identifier   =  0xFFFF;
+    uint8_t data[4]                     = {'T',Self_ID_ARNE,neighb_ID_ARNE,Self_Rssi_ARNE};  //Our data to advertise => type, device ID,
+                                                                // neighbour ID, RSSI
+    adv_manuf_data.data.p_data          = data;                                     //ndom_vector_device_id_reversed;
+    adv_manuf_data.data.size            = sizeof(data);                                      //RANDOM_VECTOR_DEVICE_ID_SIZE;
 
-    scan_response_data.name_type             = BLE_ADVDATA_NO_NAME; 
-    scan_response_data.p_manuf_specific_data = &adv_manuf_data;
+    neighb_ID_ARNE = 0;   //NEIGHBOUR_ID and Rssi should be reset because next time we scan, there should be checked neighb_ID
+    Self_Rssi_ARNE = -128;        //if the node is still there...
+
+    advdata.p_manuf_specific_data       = &adv_manuf_data;
     
     // Set both advertisement data and scan response data.
-    err_code = ble_advertising_init(&advdata, &scan_response_data, &options, on_adv_evt, NULL);
+    err_code = ble_advertising_init(&advdata, NULL, &options, on_adv_evt, NULL);
     RETURN_IF_ERROR(err_code);
     
     ble_advertising_conn_cfg_tag_set(CONN_CFG_TAG_THINGY);
@@ -1078,13 +1212,13 @@ uint32_t m_ble_init(m_ble_init_t * p_params)
         return err_code;
     }
 
-    err_code = conn_params_init();
-
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("Conn_params_init failed - %d\r\n", err_code);
-        return err_code;
-    }
+    //err_code = conn_params_init();
+//
+    //if (err_code != NRF_SUCCESS)
+    //{
+    //    NRF_LOG_ERROR("Conn_params_init failed - %d\r\n", err_code);
+    //    return err_code;
+    //}
     
     err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
 
@@ -1104,23 +1238,23 @@ uint32_t m_ble_init(m_ble_init_t * p_params)
     
     NRF_LOG_RAW_INFO("MAC addr-> %s \r\n", nrf_log_push(m_mac_addr));
     
-    err_code = nfc_init();
-
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("nfc init failed - %d\r\n", err_code);
-        return err_code;
-    }
+    //err_code = nfc_init();
+//
+    //if (err_code != NRF_SUCCESS)
+    //{
+    //    NRF_LOG_ERROR("nfc init failed - %d\r\n", err_code);
+    //    return err_code;
+    //}
     
     nrf_delay_ms (10);
 
-    err_code = timeslot_init();
-
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("timeslot_init failed - %d\r\n", err_code);
-        return err_code;
-    }
+    //err_code = timeslot_init();
+//
+    //if (err_code != NRF_SUCCESS)
+    //{
+    //    NRF_LOG_ERROR("timeslot_init failed - %d\r\n", err_code);
+    //    return err_code;
+    //}
 
     return NRF_SUCCESS;
 }

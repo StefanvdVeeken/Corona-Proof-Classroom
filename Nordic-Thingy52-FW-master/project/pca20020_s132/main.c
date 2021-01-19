@@ -91,6 +91,23 @@
 #define SCHED_MAX_EVENT_DATA_SIZE   MAX(APP_TIMER_SCHED_EVENT_DATA_SIZE, BLE_STACK_HANDLER_SCHED_EVT_SIZE) /**< Maximum size of scheduler events. */
 #define SCHED_QUEUE_SIZE            60  /**< Maximum number of events in the scheduler queue. */
 
+
+/**@brief Parameters used when scanning.
+ */
+static ble_gap_scan_params_t const scan_params =
+{
+   //.active = 0,                                 /**< Active is already 1, perform active scanning (scan requests). */
+   .use_whitelist = 0,  /**< If 1, filter advertisers using current active whitelist. */
+   .interval = 327,     /**< Scan interval between 0x0004 and 0x4000 in 0.625 ms units (2.5 ms to 10.24 s). */
+                                   // interval = window so we do continuous scanning 
+   .window = 327,       /**< Scan window between 0x0004 and 0x4000 in 0.625 ms units (2.5 ms to 10.24 s). 
+                                   our advinterval = 203.75 so scaninterval needs to be at least that => 327* 0.625 = 204.375*/
+   .timeout = 1,        /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+                                   // just scan as less as possible to conserve power => 1 s
+};
+
+APP_TIMER_DEF(scanner_timer_id);
+
 static const nrf_drv_twi_t     m_twi_sensors = NRF_DRV_TWI_INSTANCE(TWI_SENSOR_INSTANCE);
 static m_ble_service_handle_t  m_ble_service_handles[THINGY_SERVICES_MAX];
 
@@ -260,7 +277,7 @@ static void thingy_ble_evt_handler(m_ble_evt_t * p_evt)
             sleep_mode_enter();
             NVIC_SystemReset();
             break;
-    }
+}
 }
 
 
@@ -271,12 +288,11 @@ static void drv_color_data_handler(drv_color_data_t const * p_data)
 
     if (p_data != NULL)
     {
-        //ble_tes_color_t data;
         NRF_LOG_INFO("ColorSample r: %d - g: %d - b: %d - c: %d\r\n",  p_data->red,
                                                                               p_data->green,
                                                                               p_data->blue,
                                                                               p_data->clear);
-        if(p_data->clear<200)
+        if(p_data->clear>200)
         {
             sleep_mode_enter();
         }
@@ -342,66 +358,34 @@ static uint32_t accelero_init(const nrf_drv_twi_t * p_twi_instance)
     //RETURN_IF_ERROR(err_code);
 }
 
+static void scanner_start()
+{
+    NRF_LOG_INFO("SCANNER IS GESTARRRTTTT!!!!!!!");
+    sd_ble_gap_adv_stop();
+   (void) sd_ble_gap_scan_stop();
+   sd_ble_gap_scan_start(&scan_params);   
+    
+}
+
 /**@brief Function for initializing the Thingy.
  */
 static void thingy_init(void)
 {
     uint32_t                 err_code;
-    //m_ui_init_t              ui_params;
-    //m_environment_init_t     env_params;
-    //m_motion_init_t          motion_params;
     m_ble_init_t             ble_params;
-    batt_meas_init_t         batt_meas_init = BATT_MEAS_PARAM_CFG;
-
-    /**@brief Initialize the TWI manager. */
-    //err_code = twi_manager_init(APP_IRQ_PRIORITY_THREAD);
-    //APP_ERROR_CHECK(err_code);
-
-    /**@brief Initialize LED and button UI module. */
-    //ui_params.p_twi_instance = &m_twi_sensors;
-    //err_code = m_ui_init(&m_ble_service_handles[THINGY_SERVICE_UI],
-    //                     &ui_params);
-    //APP_ERROR_CHECK(err_code);
-
-    /**@brief Initialize environment module. */
-    //env_params.p_twi_instance = &m_twi_sensors;
-    //err_code = m_environment_init(&m_ble_service_handles[THINGY_SERVICE_ENVIRONMENT],
-    //                              &env_params);
-    //APP_ERROR_CHECK(err_code);
-
-    /**@brief Initialize motion module. */
-    //motion_params.p_twi_instance = &m_twi_sensors;
-//
-    //err_code = m_motion_init(&m_ble_service_handles[THINGY_SERVICE_MOTION],
-    //                        &motion_params);
-    //APP_ERROR_CHECK(err_code);
-    
-    //err_code = m_sound_init(&m_ble_service_handles[THINGY_SERVICE_SOUND]);
-    //APP_ERROR_CHECK(err_code);
-
-    /**@brief Initialize the battery measurement. */
-    batt_meas_init.evt_handler = m_batt_meas_handler;
-    err_code = m_batt_meas_init(&m_ble_service_handles[THINGY_SERVICE_BATTERY], &batt_meas_init);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = m_batt_meas_enable(BATT_MEAS_INTERVAL_MS);
-    APP_ERROR_CHECK(err_code);
 
     /**@brief Initialize BLE handling module. */
     ble_params.evt_handler       = thingy_ble_evt_handler;
     ble_params.p_service_handles = m_ble_service_handles;
-    ble_params.service_num       = THINGY_SERVICES_MAX;
+    ble_params.service_num       = 0;
 
     err_code = m_ble_init(&ble_params);
-    APP_ERROR_CHECK(err_code);
-
-    //err_code = m_ui_led_set_event(M_UI_BLE_DISCONNECTED);
-    //APP_ERROR_CHECK(err_code);
+    APP_ERROR_CHECK(err_code); 
 
     //Light sensor
-    color_sensor_init(&m_twi_sensors);
+    //color_sensor_init(&m_twi_sensors);
     //accelerometer
-    accelero_init(&m_twi_sensors);
+    //accelero_init(&m_twi_sensors);
 }
 
 
@@ -456,6 +440,10 @@ int main(void)
     APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
+    err_code = app_timer_create(&scanner_timer_id, APP_TIMER_MODE_REPEATED, scanner_start);
+    APP_ERROR_CHECK(err_code);
+    err_code = app_timer_start(scanner_timer_id,APP_TIMER_TICKS(45000),NULL);   //1 second in every 45 s
+    APP_ERROR_CHECK(err_code);
 
     board_init();
     thingy_init();
@@ -463,12 +451,11 @@ int main(void)
     for (;;)
     {
         app_sched_execute();
-        //sleep_mode_enter();
         if (!NRF_LOG_PROCESS()) // Process logs
         { 
             power_manage();
         }
-        drv_color_sample();
+        //drv_color_sample();
 
     }
 }

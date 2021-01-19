@@ -10,7 +10,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/project/pca20020_s132/armgcc"
             },
-            "problemMatcher": [],
+            "problemMatcher":{"base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/project/pca20020_s132/armgcc"]},
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -23,7 +24,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/project/pca20020_s132/armgcc"
             },
-            "problemMatcher": []
+            "problemMatcher":{"base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/project/pca20020_s132/armgcc"]}
         },
         {
             "label": "flash",
@@ -33,7 +35,8 @@
                 "cwd": "${workspaceFolder}/project/pca20020_s132/armgcc"
             },
             "group": "build",
-            "problemMatcher": []
+            "problemMatcher":{"base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/project/pca20020_s132/armgcc"]}
         },
         {
             "label": "flash_softdevice",
@@ -42,7 +45,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/project/pca20020_s132/armgcc"
             },
-            "problemMatcher": []
+            "problemMatcher":{"base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/project/pca20020_s132/armgcc"]}
         },
         {
             "label": "sdk_config",
@@ -51,7 +55,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/project/pca20020_s132/armgcc"
             },
-            "problemMatcher": []
+            "problemMatcher":{"base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/project/pca20020_s132/armgcc"]}
         },
         {
             "label": "erase",
@@ -60,7 +65,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/project/pca20020_s132/armgcc"
             },
-            "problemMatcher": []
+            "problemMatcher":{"base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/project/pca20020_s132/armgcc"]}
         }
     ]
 }

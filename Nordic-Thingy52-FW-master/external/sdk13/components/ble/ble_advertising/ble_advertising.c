@@ -609,6 +609,7 @@ void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt)
         case BLE_GAP_EVT_TIMEOUT:
             on_timeout(p_ble_evt);
             break;
+            
 
         default:
             break;

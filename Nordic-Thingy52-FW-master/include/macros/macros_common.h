@@ -55,7 +55,6 @@
 if ((err_code) != NRF_SUCCESS)                                                       \
 {                                                                                    \
     NRF_LOG_WARNING("Err code returned in file: %s, line: %d, code %d \r\n",         \
-    NRF_LOG_INFO("WARNINGGGG RETURNEEEEDDD");\
     nrf_log_push(__FILE__), __LINE__, err_code);                                     \
     return (err_code);                                                               \
 }

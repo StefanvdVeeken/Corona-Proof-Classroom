@@ -50,7 +50,7 @@
 #define DEVICE_NAME                     "Thingy"                                    /**< Name of device. Will be included in the advertising data. */
 #define NORDIC_COMPANY_ID               0x0059                                      /**< Nordic Semiconductor ASA company identifier. */
 
-#define APP_ADV_INTERVAL_MS             3000                                         /**< The advertising interval in ms. default is 380 ms */
+#define APP_ADV_INTERVAL_MS             203.75                                         /**< The advertising interval in ms. default is 380 ms */
 #define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout in s. default is 180 ms */
 
 #define MIN_CONN_INTERVAL_MS            7.5                                         /**< Minimum acceptable connection interval in ms. */
