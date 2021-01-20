@@ -173,7 +173,6 @@ void process_rx_uart()
           if(memcmp(&allMessages[i], &newMessage, 2) == 0){
             if (memcmp(&allMessages[i], &newMessage, sizeof(newMessage)) == 0)
             {
-              // check whether same message already exist
               // Same sensor, same message
               printINF("Found, doing nothing. Message %d %d %d %d\r\n", newMessage.b1, newMessage.b2, newMessage.b3, newMessage.b4);
               found = 1;

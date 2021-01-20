@@ -28,26 +28,6 @@ db = db_client.sensors
 windows = db['windows_collection']
 chairs = db['chairs_collection']
 
-#Testdata
-# chair1 = Chair(1, 0, 0)
-# chair2 = Chair(2, 1, -100)
-# chair_list = [
-#     eval(json.dumps(chair1.__dict__)),
-#     eval(json.dumps(chair2.__dict__))
-# ]
-# window_list = [
-#     eval(json.dumps(Window(1, 0).__dict__)),
-#     eval(json.dumps(Window(2, 1).__dict__))
-# ]
-#if("windows_collection" in db.list_collection_names()):
-#windows.drop()
-
-#if("chairs_collection" in db.list_collection_names()):
-#chairs.drop()
-
-#chairs.insert_many(chair_list)
-#windows.insert_many(window_list)
-
 # LoraWAN
 client_id = "LowPowerIotClientId"
 broker = "eu.thethings.network"
@@ -61,29 +41,6 @@ thingsClientId = "thingsClient"
 thingsBroker = 'thingsboard.cloud'
 access_token = 'dspE60A3Lpf5iVrZSEaZ'
 boardSubject = 'v1/gateway/telemetry'
-
-# Thingsboard testdata
-#sensor_data = {
-#    "Window 1": [
-#        {
-#            "id": 1,
-#            "status": 0
-#         }
-#     ],
-#     "Window 2": [
-#         {
-#             "id": 2,
-#             "status": 1
-#         }
-#     ],
-#     "Thingy1": [
-#         {
-#             "id": 1,
-#             "neighbourID": 2,
-#             "RSSI": -110
-#         }
-#     ]
-# }
 
 def on_connect(client, userdata, flags, rc):
     print("Connected flags ",str(flags),"result code ",str(rc))
