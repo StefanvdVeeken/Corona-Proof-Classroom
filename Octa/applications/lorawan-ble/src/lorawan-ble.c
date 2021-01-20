@@ -2,7 +2,7 @@
 #include "murata.h"
 
 #define IWDG_INTERVAL           5    //seconds
-#define LORAWAN_INTERVAL        90   //seconds
+#define LORAWAN_INTERVAL        20   //seconds
 #define MODULE_CHECK_INTERVAL   3600 //seconds
 #define NUMBER_OF_SENSORS       4
 #define BUFFER_LENGTH           6
@@ -182,6 +182,7 @@ void process_rx_uart()
             else{
               // Same sensor, different message
               printINF("Same sensor, different message \r\n");
+              found = 1;
               allMessages[i] = newMessage;
               recentData = 1;
             }
