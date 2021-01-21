@@ -1,0 +1,5 @@
+mosquitto_sub -h eu.thethings.network -t "+/devices/+/events/activations" -u "corona_proof_classroom" -P "ttn-account-v2._MKGX66ysWDAsAyt9x78jT0wLfV_SyUjXjjptqYqOds" -v
+
+Database:
+Username: IoTAdmin
+5kfVweQILq5bCNCR

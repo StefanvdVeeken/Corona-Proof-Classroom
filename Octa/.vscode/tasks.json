@@ -1,0 +1,33 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make firmware lorawan-ble",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/lorawan-ble/; make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "make clean all firmware lorawan-ble",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/lorawan-ble/; make clean all",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ]
+}

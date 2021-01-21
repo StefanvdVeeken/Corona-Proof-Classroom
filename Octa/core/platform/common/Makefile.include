@@ -1,0 +1,5 @@
+# common sources
+C_SOURCES += $(wildcard $(PLATFORM_DIR)/common/src/*.c)
+
+# common includes
+C_INCLUDES += -I$(PLATFORM_DIR)/common/inc
