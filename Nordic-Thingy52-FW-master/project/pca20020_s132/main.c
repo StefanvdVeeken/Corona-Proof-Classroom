@@ -98,10 +98,10 @@ static ble_gap_scan_params_t const scan_params =
 {
    //.active = 0,                                 /**< Active is already 1, perform active scanning (scan requests). */
    .use_whitelist = 0,  /**< If 1, filter advertisers using current active whitelist. */
-   .interval = 327,     /**< Scan interval between 0x0004 and 0x4000 in 0.625 ms units (2.5 ms to 10.24 s). */
+   .interval = 455,     /**< Scan interval between 0x0004 and 0x4000 in 0.625 ms units (2.5 ms to 10.24 s). */
                                    // interval = window so we do continuous scanning 
-   .window = 327,       /**< Scan window between 0x0004 and 0x4000 in 0.625 ms units (2.5 ms to 10.24 s). 
-                                   our advinterval = 203.75 so scaninterval needs to be at least that => 327* 0.625 = 204.375*/
+   .window = 455,       /**< Scan window between 0x0004 and 0x4000 in 0.625 ms units (2.5 ms to 10.24 s). 
+                                   our advinterval = 282.5 so scaninterval needs to be at least that => 455* 0.625 = 284.375*/
    .timeout = 1,        /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
                                    // just scan as less as possible to conserve power => 1 s
 };
@@ -160,6 +160,9 @@ static void sleep_mode_enter(void)
 
     err_code = support_func_configure_io_shutdown();
     APP_ERROR_CHECK(err_code);
+
+    sd_ble_gap_disconnect(m_ble_service_handles,BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+    sd_ble_gap_adv_stop();
     
     // Enable wake on button press. WE DON't need this
     //nrf_gpio_cfg_sense_input(BUTTON, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
@@ -383,9 +386,9 @@ static void thingy_init(void)
     APP_ERROR_CHECK(err_code); 
 
     //Light sensor
-    //color_sensor_init(&m_twi_sensors);
+    color_sensor_init(&m_twi_sensors);
     //accelerometer
-    //accelero_init(&m_twi_sensors);
+    accelero_init(&m_twi_sensors);
 }
 
 
@@ -447,7 +450,7 @@ int main(void)
 
     board_init();
     thingy_init();
-
+    
     for (;;)
     {
         app_sched_execute();
@@ -455,7 +458,7 @@ int main(void)
         { 
             power_manage();
         }
-        //drv_color_sample();
+        drv_color_sample();
 
     }
 }

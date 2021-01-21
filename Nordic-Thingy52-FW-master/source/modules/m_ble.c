@@ -121,7 +121,7 @@ static m_ble_service_handle_t  m_ble_service_handles[THINGY_SERVICES_MAX];
 #define CONN_CFG_TAG_THINGY 1
 
 static char const testName[] = "Thingy";
-volatile uint8_t Self_ID_ARNE = 12;     // ID of this thingy
+volatile uint8_t Self_ID_ARNE = 3;     // ID of this thingy
 volatile int8_t Self_Rssi_ARNE = -128;      //this variable is added to keep track of the Rssi
 volatile uint8_t neighb_ID_ARNE = 0; //
 
@@ -508,10 +508,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
         break;
         case BLE_GAP_EVT_ADV_REPORT:
             NRF_LOG_INFO("\r\nADVERTISSSSSEEEMEEENNNTT ONTVANNNNGGGEEEENNNN");
-            on_adv_report(&p_ble_evt->evt.gap_evt.params.adv_report);            
-            //on_adv_report(&report);
-            //RssiMain = p_evt->evt_type.rssi;
-            //NRF_LOG_INFO("Received advertisement packet with:\nrssi: %d\nneigbour ID: %d\r\n", adv_report.rssi );       
+            on_adv_report(&p_ble_evt->evt.gap_evt.params.adv_report);                   
          break;
 
          case BLE_GAP_EVT_TIMEOUT:
@@ -1163,13 +1160,13 @@ uint32_t m_ble_init(m_ble_init_t * p_params)
         __ISB();
     #endif
     
-    err_code = random_vector_generate(m_random_vector_device_id, RANDOM_VECTOR_DEVICE_ID_SIZE);
-
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("random_vector_generate failed - %d\r\n", err_code);
-        return err_code;
-    }
+    //err_code = random_vector_generate(m_random_vector_device_id, RANDOM_VECTOR_DEVICE_ID_SIZE);
+//
+    //if (err_code != NRF_SUCCESS)
+    //{
+    //    NRF_LOG_ERROR("random_vector_generate failed - %d\r\n", err_code);
+    //    return err_code;
+    //}
     
     /**@brief Load configuration from flash. */
     err_code = m_ble_flash_init(&m_ble_default_config, &m_ble_config);
@@ -1196,13 +1193,13 @@ uint32_t m_ble_init(m_ble_init_t * p_params)
         return err_code;
     }
 
-    err_code = services_init(m_service_handles, m_service_num);
-
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("Thingy_ble_init: services_init failed - %d\r\n", err_code);
-        return err_code;
-    }
+    //err_code = services_init(m_service_handles, m_service_num);
+//
+    //if (err_code != NRF_SUCCESS)
+    //{
+    //    NRF_LOG_ERROR("Thingy_ble_init: services_init failed - %d\r\n", err_code);
+    //    return err_code;
+    //}
 
     err_code = advertising_init();
 
