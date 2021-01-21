@@ -62,7 +62,7 @@ def parseData(sensorData):
         dataPieces = [message[i:i+2] for i in range(dataPosition, 8, 2)] # Get all data points. payload should only contain 4 bytes. In hex so 8 positions
         if dataType == format(ord('T'), 'x'): # Format hex value of T with 0x prefix
             uRSSI = int(dataPieces[2], 16)
-            realRSSI = (-1)*(255+1-uRSSI) # Convert 2's complement to negative number. 255 for 8 bit number
+            realRSSI = (-1)*(255+1-uRSSI) # Convert 2's complement to negative number. 255 for 8 bit number https://gist.github.com/ariutti/80173ac6fa1acef4c7ab2a9aecf038a5
             newChair = Chair(int(dataPieces[0], 16), int(dataPieces[1], 16), realRSSI)
             if chairs.count_documents ({'_id': newChair._id}, limit=1):
                 # Update existing document

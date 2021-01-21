@@ -58,8 +58,8 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="328" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="312" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="699" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/common/ble_advdata.c" selected="0" top="673" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="328" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="0" top="312" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="53" y="696" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/ble/common/ble_advdata.c" selected="1" top="676" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="272" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="239" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="ble_octa_pca10040_s132" fileDialogDefaultFilter="*.c;*.cpp;*.cxx;*.cc;*.h;*.hpp;*.hxx" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="B:/School/Corona-Proof-Classroom/Octa/NRF52/components/libraries/fifo" debugSearchPath="" autoConnectCapabilities="3199"/>

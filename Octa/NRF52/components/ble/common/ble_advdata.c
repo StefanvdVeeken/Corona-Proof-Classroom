@@ -691,12 +691,10 @@ bool ble_advdata_name_find(uint8_t const * p_encoded_data,
                                          BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME);
 
     p_parsed_name = &p_encoded_data[data_offset];
-
+// https://devzone.nordicsemi.com/f/nordic-q-a/45607/central-device-match-filter-for-a-substring-of-the-name
     if (   (data_offset != 0)
         && (parsed_name_len != 0)
-        //&& (strlen(p_target_name) == parsed_name_len)
-        &&(parsed_name_len >= strlen(p_target_name))
-        //&& (memcmp(p_target_name, p_parsed_name, parsed_name_len) == 0))
+        && (parsed_name_len >= strlen(p_target_name))
         && (memcmp(p_target_name, p_parsed_name, strlen(p_target_name)) == 0))
     {
         return true;
