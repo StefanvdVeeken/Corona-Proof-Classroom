@@ -28,7 +28,7 @@ db = db_client.sensors
 windows = db['windows_collection']
 chairs = db['chairs_collection']
 
-# LoraWAN
+# TheThingsNetwork
 client_id = "LowPowerIotClientId"
 broker = "eu.thethings.network"
 appName = "corona_proof_classroom"

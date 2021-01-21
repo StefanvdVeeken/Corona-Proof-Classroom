@@ -2,7 +2,7 @@
 #include "murata.h"
 
 #define IWDG_INTERVAL           5    //seconds
-#define LORAWAN_INTERVAL        20   //seconds
+#define LORAWAN_INTERVAL        90   //seconds
 #define MODULE_CHECK_INTERVAL   3600 //seconds
 #define NUMBER_OF_SENSORS       4
 #define BUFFER_LENGTH           6
@@ -83,8 +83,8 @@ int main(void)
      osMutexWait(txMutexId, osWaitForever);
      if(recentData == 1)
      {
-       // Only send of there is recent data
-      uint8_t loraMessage[NUMBER_OF_SENSORS*4];
+       // Only send if there is recent data
+      uint8_t loraMessage[NUMBER_OF_SENSORS*4]; // Times 4 because our payload is 4 bytes long
       uint8_t i = 0;
 
       for(int j = 0; j < NUMBER_OF_SENSORS; j++){

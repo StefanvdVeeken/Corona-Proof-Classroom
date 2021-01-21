@@ -99,8 +99,6 @@
 #define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
 
 NRF_BLE_GATT_DEF(m_gatt);                                               /**< GATT module instance. */
-//BLE_LBS_C_ARRAY_DEF(m_lbs_c, NRF_SDH_BLE_CENTRAL_LINK_COUNT);           /**< LED button client instances. */
-//BLE_DB_DISCOVERY_ARRAY_DEF(m_db_disc, NRF_SDH_BLE_CENTRAL_LINK_COUNT);  /**< Database discovery module instances. */
 NRF_BLE_SCAN_DEF(m_scan);                                               /**< Scanning Module instance. */
 NRF_BLE_GQ_DEF(m_ble_gatt_queue,                                        /**< BLE GATT Queue instance. */
                NRF_SDH_BLE_CENTRAL_LINK_COUNT,
@@ -108,7 +106,6 @@ NRF_BLE_GQ_DEF(m_ble_gatt_queue,                                        /**< BLE
 
 static char const m_target_periph_name[] = "Thingy";  /**< Name of the device to parse advertisements from. This name is searched for in the scanning report data. */
 static char const m_target_periph_name2[] = "Window"; /**< Name of the device to parse advertisements from. This name is searched for in the scanning report data. */
-//nrf_ble_scan_short_name_t short_name = { .p_short_name = m_target_periph_name, .short_name_min_len = 8};
 
 uint32_t err_code;
 
@@ -195,11 +192,11 @@ static uint32_t adv_report_parse(uint8_t type, uint8_array_t * p_advdata, uint8_
 }
 
 // https://stackoverflow.com/questions/4770985/how-to-check-if-a-string-starts-with-another-string-in-c
-bool startsWith(const char *str, const char *pre){
-    size_t lenstr = strlen(str),
-           lenpre = strlen(pre);
-    return lenstr < lenpre ? false : memcmp(pre, str, lenpre) == 0;
-}
+//bool startsWith(const char *str, const char *pre){
+//    size_t lenstr = strlen(str),
+//           lenpre = strlen(pre);
+//    return lenstr < lenpre ? false : memcmp(pre, str, lenpre) == 0;
+//}
 
 static void sendOverUart(uint8_array_t *data){
   for(int i = 0; i< data->size; i++){
@@ -218,22 +215,6 @@ static void on_adv_report(ble_gap_evt_adv_report_t const *p_adv_report)
     // Prepare advertisement report for parsing.
     adv_data.p_data = p_adv_report->data.p_data;
     adv_data.size   = p_adv_report->data.len;
-    //bool found_name = false;
-    //if(err_code == NRF_SUCCESS && dev_name.size == 10 && startsWith(dev_name.p_data, "Thing") strncmp(dev_name.p_data, "Thingy", dev_name.size) == 0)
-    // Try to get the SHORT_LOCAL_NAME the device is advertising on.
-
-    //err_code = adv_report_parse(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, &adv_data, &dev_name);
-    //if(err_code == NRF_SUCCESS){
-    //  //NRF_LOG_INFO("complete name: %s", dev_name.p_data);
-    //  sendOverUart(&dev_name);
-    //}
-    //if(err_code != NRF_SUCCESS) {
-    //  err_code = adv_report_parse(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, &adv_data, &dev_name);
-    //  if(err_code == NRF_SUCCESS){
-    //  //NRF_LOG_INFO("short name: %s", dev_name.p_data);
-    //    while(app_uart_put(*(dev_name.p_data)) != NRF_SUCCESS); // Put the data on UART
-    //  }
-    //}
   
     uint8_array_t manuf_data;
     memset(&manuf_data, 0, sizeof (manuf_data));
@@ -268,10 +249,6 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
         default:
             break;
     }
-
-       //ble_gap_evt_adv_report_t report;
-       //report = *p_scan_evt->params.filter_match.p_adv_report;
-       //on_adv_report(&report);
 }
 
 
@@ -285,7 +262,6 @@ static void scan_init(void)
     {
         .active        = 0x01,
         .interval      = NRF_BLE_SCAN_SCAN_INTERVAL,
-        //.window        = NRF_BLE_SCAN_SCAN_WINDOW,
         .window        = BLE_GAP_SCAN_WINDOW_MAX,
         .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
         .timeout       = 0,
