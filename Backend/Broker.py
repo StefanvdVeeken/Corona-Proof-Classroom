@@ -39,7 +39,7 @@ dataPosition = 2
 # ThingsBoard
 thingsClientId = "thingsClient"
 thingsBroker = 'thingsboard.cloud'
-access_token = 'dspE60A3Lpf5iVrZSEaZ'
+access_token = 'Nhz098V5CmVMiZcAuaP0'
 boardSubject = 'v1/gateway/telemetry'
 
 def on_connect(client, userdata, flags, rc):
@@ -69,13 +69,13 @@ def parseData(sensorData):
                 chairs.update_one({"_id": newChair._id},
                     {"$set": { "neighbour_id": newChair.neighbour_id, "rssi": newChair.rssi}}            
                 )
-                tag = "Thingy " + str(newChair._id)
+                tag = "Thingy" + str(newChair._id)
                 newPayload = {
                     tag : [
                         {
                             "id": newChair._id,
-                            "neighbour_id": newChair.neighbour_id,
-                            "rssi": newChair.rssi
+                            "neighbourID": newChair.neighbour_id,
+                            "RSSI": newChair.rssi
                         }
                     ]
                 } # Prepare payload for Thingsboard
@@ -84,13 +84,13 @@ def parseData(sensorData):
             else:
                 # Insert new document
                 chairs.insert_one(eval(json.dumps(newChair.__dict__)))
-                tag = "Thingy " + str(newChair._id)
+                tag = "Thingy" + str(newChair._id)
                 newPayload = {
                     tag : [
                         {
                             "id": newChair._id,
-                            "neighbour_id": newChair.neighbour_id,
-                            "rssi": newChair.rssi
+                            "neighbourID": newChair.neighbour_id,
+                            "RSSI": newChair.rssi
                         }
                     ]
                 }
@@ -103,7 +103,7 @@ def parseData(sensorData):
                 windows.update_one({"_id": newWindow._id},
                     {"$set": { "status": newWindow.status}}            
                 )
-                tag = "Window " + str(newWindow._id)
+                tag = "Window" + str(newWindow._id)
                 newPayload = {
                     tag : [
                         {
@@ -117,7 +117,7 @@ def parseData(sensorData):
             else:
                 # Insert new document
                 windows.insert_one(eval(json.dumps(newWindow.__dict__)))
-                tag = "Window " + str(newWindow._id)
+                tag = "Window" + str(newWindow._id)
                 newPayload = {
                     tag : [
                         {
