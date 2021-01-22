@@ -4,16 +4,16 @@
 #define IWDG_INTERVAL           5    //seconds
 #define LORAWAN_INTERVAL        90   //seconds
 #define MODULE_CHECK_INTERVAL   3600 //seconds
-#define NUMBER_OF_SENSORS       4
-#define BUFFER_LENGTH           6
+#define NUMBER_OF_SENSORS       4 // Should be the total number of different sensors this octa can receive data from
+#define BUFFER_LENGTH           6 // Length of 1 complete message
 
 uint16_t LoRaWAN_Counter = 0;
 uint8_t murata_init = 0;
 uint64_t short_UID;
 uint8_t murata_data_ready = 0;
 
-uint8_t uartSensorData[BUFFER_LENGTH]; // 6 bytes = length of 1 complete message
-struct UartMessage allMessages[NUMBER_OF_SENSORS]; // 5 should be the total number of different sensors this octa can receive data from
+uint8_t uartSensorData[BUFFER_LENGTH]; 
+struct UartMessage allMessages[NUMBER_OF_SENSORS]; 
 uint8_t messagesIndex = 0;
 volatile uint8_t data_ready = 0;
 uint8_t recentData = 0;
